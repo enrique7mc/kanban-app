@@ -30,6 +30,7 @@ export default class KanbanBoardContainer extends Component {
   }
 
   addTask (cardId, taskName) {
+    let prevState = this.state;
     let cardIndex = this.state.cards.findIndex((card) => card.id === cardId);
     let newTask = { id: Date.now(), name: taskName, done: false };
     let nextState = update(this.state.cards, {
@@ -45,14 +46,25 @@ export default class KanbanBoardContainer extends Component {
       headers: API_HEADERS,
       body: JSON.stringify(newTask)
     })
-    .then((response) => response.json())
+    .then((response) => {
+      if(response.ok) {
+        return response.json();
+      } else {
+        throw new Error('Server response was not ok');
+      }
+    })
     .then((data) => {
       newTask.id = data.id;
       this.setState({ cards: nextState });
     })
+    .catch((error) => {
+      console.log('Error occurred', error);
+      this.setState(prevState);
+    })
   }
 
   deleteTask (cardId, taskId, taskIndex) {
+    let prevState = this.state;
     let cardIndex = this.state.cards.findIndex((card) => card.id === cardId);
     let nextState = update(this.state.cards, {
       [cardIndex]: {
@@ -64,10 +76,20 @@ export default class KanbanBoardContainer extends Component {
     fetch(`${API_URL}/cards/${cardId}/tasks/${taskId}`, {
       method: 'delete',
       headers: API_HEADERS
+    })
+    .then((response) => {
+      if(!response.ok) {
+        throw new Error('Server response was not ok');
+      }
+    })
+    .catch((error) => {
+      console.log('Error occurred', error);
+      this.setState(prevState);
     });
   }
 
   toggleTask (cardId, taskId, taskIndex) {
+    let prevState = this.state;
     let cardIndex = this.state.cards.findIndex((card) => card.id === cardId);
     let newDoneValue;
     let nextState = update(this.state.cards, {
@@ -91,6 +113,15 @@ export default class KanbanBoardContainer extends Component {
       method: 'put',
       headers: API_HEADERS,
       body: JSON.stringify({done: newDoneValue})
+    })
+    .then((response) => {
+      if(!response.ok) {
+        throw new Error('Server response was not ok');
+      }
+    })
+    .catch((error) => {
+      console.log('Error occurred', error);
+      this.setState(prevState);
     });
   }
 
