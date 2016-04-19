@@ -30,17 +30,36 @@ export default class KanbanBoardContainer extends Component {
   }
 
   addTask (cardId, taskName) {
-    console.log(`add: Id: ${cardId} task: ${taskName}`);
+    let cardIndex = this.state.cards.findIndex((card) => card.id === cardId);
+    let newTask = { id: Date.now(), name: taskName, done: false };
+    let nextState = update(this.state.cards, {
+      [cardIndex]: {
+        tasks: {$push: [newTask]}
+      }
+    });
+
+    this.setState({ cards: nextState });
+
+    fetch(`${API_URL}/cards/${cardId}/tasks`, {
+      method: 'post',
+      headers: API_HEADERS,
+      body: JSON.stringify(newTask)
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      newTask.id = data.id;
+      this.setState({ cards: nextState });
+    })
   }
 
   deleteTask (cardId, taskId, taskIndex) {
     let cardIndex = this.state.cards.findIndex((card) => card.id === cardId);
     let nextState = update(this.state.cards, {
-                            [cardIndex]: {
-                              tasks: {$splice: [[taskIndex, 1]]}
-                            }
-                          });
-    this.setState({cards: nextState});
+      [cardIndex]: {
+        tasks: {$splice: [[taskIndex, 1]]}
+      }
+    });
+    this.setState({ cards: nextState });
 
     fetch(`${API_URL}/cards/${cardId}/tasks/${taskId}`, {
       method: 'delete',
@@ -66,7 +85,7 @@ export default class KanbanBoardContainer extends Component {
       }
     });
 
-    this.setState({cards: nextState});
+    this.setState({ cards: nextState });
 
     fetch(`${API_URL}/cards/${cardId}/tasks/${taskId}`, {
       method: 'put',
