@@ -1,5 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import KanbanBoard from './KanbanBoard';
+import update from 'react-addons-update';
+import 'babel-polyfill';
 import 'whatwg-fetch';
 
 const API_URL = 'http://kanbanapi.pro-react.com';
@@ -16,18 +18,6 @@ export default class KanbanBoardContainer extends Component {
     };
   }
 
-  addTask (cardId, taskName) {
-    console.log(`add: Id: ${cardId} task: ${taskName}`);
-  }
-
-  deleteTask (cardId, taskId, taskIndex) {
-    console.log(`delete: Id: ${cardId} taskId: ${taskId}, taskIndex: ${taskIndex}`);
-  }
-
-  toggleTask (cardId, taskId, taskIndex) {
-    console.log(`toggle: Id: ${cardId} taskId: ${taskId}, taskIndex: ${taskIndex}`);
-  }
-
   componentDidMount () {
     fetch(API_URL + '/cards', { headers: API_HEADERS })
       .then((response) => response.json())
@@ -37,6 +27,52 @@ export default class KanbanBoardContainer extends Component {
       .catch((error) => {
         console.log('Error fetching and parsing data', error);
       });
+  }
+
+  addTask (cardId, taskName) {
+    console.log(`add: Id: ${cardId} task: ${taskName}`);
+  }
+
+  deleteTask (cardId, taskId, taskIndex) {
+    let cardIndex = this.state.cards.findIndex((card) => card.id === cardId);
+    let nextState = update(this.state.cards, {
+                            [cardIndex]: {
+                              tasks: {$splice: [[taskIndex, 1]]}
+                            }
+                          });
+    this.setState({cards: nextState});
+
+    fetch(`${API_URL}/cards/${cardId}/tasks/${taskId}`, {
+      method: 'delete',
+      headers: API_HEADERS
+    });
+  }
+
+  toggleTask (cardId, taskId, taskIndex) {
+    let cardIndex = this.state.cards.findIndex((card) => card.id === cardId);
+    let newDoneValue;
+    let nextState = update(this.state.cards, {
+      [cardIndex]: {
+        tasks: {
+          [taskIndex]: {
+            done: {
+              $apply: (done) => {
+                newDoneValue = !done;
+                return newDoneValue;
+              }
+            }
+          }
+        }
+      }
+    });
+
+    this.setState({cards: nextState});
+
+    fetch(`${API_URL}/cards/${cardId}/tasks/${taskId}`, {
+      method: 'put',
+      headers: API_HEADERS,
+      body: JSON.stringify({done: newDoneValue})
+    });
   }
 
   render () {
