@@ -16,6 +16,18 @@ export default class KanbanBoardContainer extends Component {
     };
   }
 
+  addTask (cardId, taskName) {
+    console.log(`add: Id: ${cardId} task: ${taskName}`);
+  }
+
+  deleteTask (cardId, taskId, taskIndex) {
+    console.log(`delete: Id: ${cardId} taskId: ${taskId}, taskIndex: ${taskIndex}`);
+  }
+
+  toggleTask (cardId, taskId, taskIndex) {
+    console.log(`toggle: Id: ${cardId} taskId: ${taskId}, taskIndex: ${taskIndex}`);
+  }
+
   componentDidMount () {
     fetch(API_URL + '/cards', { headers: API_HEADERS })
       .then((response) => response.json())
@@ -28,6 +40,11 @@ export default class KanbanBoardContainer extends Component {
   }
 
   render () {
-    return <KanbanBoard cards={ this.state.cards } />
+    return <KanbanBoard cards={ this.state.cards }
+                        taskCallbacks={{
+                          add: this.addTask.bind(this),
+                          delete: this.deleteTask.bind(this),
+                          toggle: this.toggleTask.bind(this)
+                        }} />
   }
 }
