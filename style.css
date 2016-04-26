@@ -92,9 +92,28 @@ ul {
 }
 
 .checklist--add-task {
-border: 1px dashed #bbb;
-width: 100%;
-padding: 10px;
-margin-top: 5px;
-border-radius: 3px;
+  border: 1px dashed #BBB;
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 3px;
+}
+
+.toggle-enter {
+  max-height: 0;
+  overflow: hidden;
+}
+.toggle-enter.toggle-enter-active {
+  max-height: 300px;
+  overflow: hidden;
+  transition: max-height .25s ease-in;
+}
+.toggle-leave {
+  max-height: 300px;
+  overflow: hidden;
+}
+.toggle-leave.toggle-leave-active {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .25s ease-out;
 }
