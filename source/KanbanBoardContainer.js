@@ -125,12 +125,24 @@ export default class KanbanBoardContainer extends Component {
     });
   }
 
+  updateCardStatus(cardId, listId) {
+    console.log(`Card Id: ${cardId} - listId: ${listId}`);
+  }
+
+  updateCardPosition(cardId, afterId) {
+    console.log(`Card Id: ${cardId} - afterId: ${afterId}`);
+  }
+
   render () {
     return <KanbanBoard cards={ this.state.cards }
                         taskCallbacks={{
                           add: this.addTask.bind(this),
                           delete: this.deleteTask.bind(this),
                           toggle: this.toggleTask.bind(this)
-                        }} />
+                        }}
+                        cardCallbacks={{
+                          updateStatus: this.updateCardStatus.bind(this),
+                          updatePosition: this.updateCardPosition.bind(this)
+                        }}/>
   }
 }
