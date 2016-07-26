@@ -8,9 +8,9 @@ import constants from './constants';
 let titlePropType = (props, propName, componentName) => {
   if (props[propName]) {
     let value = props[propName];
-    if (typeof value !== 'string' || value.length > 80) {
+    if (typeof value !== 'string' || value.length > 10) {
       return new Error(
-        `${propName} in ${componentName} is longer than 80 characters`
+        `${propName} in ${componentName} is longer than 10 characters`
       );
     }
   }
@@ -89,7 +89,7 @@ Card.propTypes = {
   connectDragSource: PropTypes.func.isRequired,
   description: PropTypes.string,
   id: PropTypes.number,
-  title: PropTypes.string,
+  title: titlePropType,
   tasks: PropTypes.arrayOf(PropTypes.object),
   taskCallbacks: PropTypes.object
 };
